@@ -177,6 +177,17 @@ def _create_run_dir_local(submit_config: SubmitConfig) -> str:
     return run_dir
 
 
+def _find_run_dir_local(submit_config: SubmitConfig, resume_run_id) -> str:
+    """Create a new run dir with increasing ID number at the start."""
+    run_dir_root = get_path_from_template(submit_config.run_dir_root, PathType.AUTO)
+
+    submit_config.run_id = resume_run_id
+    submit_config.run_name = "{0:05d}-{1}".format(submit_config.run_id, submit_config.run_desc)
+    run_dir = os.path.join(run_dir_root, submit_config.run_name)
+
+    return run_dir
+
+
 def _get_next_run_id_local(run_dir_root: str) -> int:
     """Reads all directory names in a given directory (non-recursive) and returns the next (increasing) run id. Assumes IDs are numbers at the start of the directory names."""
     dir_names = [d for d in os.listdir(run_dir_root) if os.path.isdir(os.path.join(run_dir_root, d))]
@@ -272,11 +283,14 @@ def submit_run(submit_config: SubmitConfig, run_func_name: str, **run_func_kwarg
 
     assert submit_config.submit_target == SubmitTarget.LOCAL
     if submit_config.submit_target in {SubmitTarget.LOCAL}:
-        run_dir = _create_run_dir_local(submit_config)
+        if 'resume_run_id' in run_func_kwargs:
+            submit_config.run_dir = _find_run_dir_local(submit_config, run_func_kwargs['resume_run_id'])
+        else:
+            run_dir = _create_run_dir_local(submit_config)
 
-        submit_config.task_name = "{0}-{1:05d}-{2}".format(submit_config.user_name, submit_config.run_id, submit_config.run_desc)
-        submit_config.run_dir = run_dir
-        _populate_run_dir(run_dir, submit_config)
+            submit_config.task_name = "{0}-{1:05d}-{2}".format(submit_config.user_name, submit_config.run_id, submit_config.run_desc)
+            submit_config.run_dir = run_dir
+            _populate_run_dir(run_dir, submit_config)
 
     if submit_config.print_info:
         print("\nSubmit config:\n")
