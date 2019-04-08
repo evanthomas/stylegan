@@ -179,8 +179,10 @@ def main():
     kwargs = EasyDict(train)
     kwargs.update(G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)
     kwargs.update(dataset_args=dataset, sched_args=sched, grid_args=grid, metric_arg_list=metrics, tf_config=tf_config)
+    kwargs.update(resume_kimg=9726.1)
+    kwargs.update(resume_time=583440000)
     kwargs.update(resume_run_id=0)
-    kwargs.update(resume_snapshot='results/00000-sgan-evan-1gpu/network-snapshot-004705.pkl')
+    kwargs.update(resume_snapshot='results/00000-sgan-evan-1gpu/network-snapshot-009726.pkl')
     kwargs.submit_config = copy.deepcopy(submit_config)
     kwargs.submit_config.run_dir_root = dnnlib.submission.submit.get_template_from_path(config.result_dir)
     kwargs.submit_config.run_dir_ignore += config.run_dir_ignore
