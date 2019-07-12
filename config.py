@@ -11,7 +11,7 @@
 # Paths.
 
 result_dir = 'results'
-data_dir = '../images'
+data_dir = '/data/images'
 cache_dir = 'cache'
 run_dir_ignore = ['results', 'datasets', 'cache']
 

@@ -21,29 +21,42 @@ def build_parser():
     return parser
 
 
-def resize(img, resize_to, out_img_nm):
-    img = Image.open(img)
+def resize_crop(img, resize_to):
 
-    width, height = img.size
+  width, height = img.size
 
-    # square it
-    if width > height:
-        delta = width - height
-        left = int(delta / 2)
-        upper = 0
-        right = height + left
-        lower = height
-    else:
-        delta = height - width
-        left = 0
-        upper = int(delta / 2)
-        right = width
-        lower = width + upper
+  # square it
+  if width > height:
+    delta = width - height
+    left = int(delta / 2)
+    upper = 0
+    right = height + left
+    lower = height
+  else:
+    delta = height - width
+    left = 0
+    upper = int(delta / 2)
+    right = width
+    lower = width + upper
 
-    img = img.crop((left, upper, right, lower))
+  img = img.crop((left, upper, right, lower))
 
-    out_img = img.resize((resize_to, resize_to), PIL.Image.ANTIALIAS)
-    out_img.save(out_img_nm)
+  return img.resize((resize_to, resize_to), PIL.Image.ANTIALIAS)
+
+
+def check_resize(img_nm, resize_to, out_dir):
+  out_img_nm = os.path.join(out_dir, os.path.basename(img_nm))
+  if os.path.exists(out_img_nm):
+    return
+
+  img = Image.open(img_nm)
+  width, height = img.size
+  if width<resize_to or height<resize_to:
+    print('Input ' + img_nm + ' is too small. ' + str(width) + 'x' + str(height))
+    return
+
+  out_img = resize_crop(img, resize_to)
+  out_img.save(out_img_nm)
 
 
 def create_if_needed(dir):
@@ -74,7 +87,8 @@ def main(argv):
     create_if_needed(output_dir)
     size = int(options.size)
 
-    ripper.walk(input_dir, check_size, args = (output_dir,))
+    ripper.walk(input_dir, check_resize, args = (size, output_dir))
+    # ripper.walk(input_dir, check_size, args = (output_dir,))
 
 
 if __name__ == '__main__':
